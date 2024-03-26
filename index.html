@@ -1,1 +1,85 @@
-測試 GitHub Pages
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>串接 API 網頁</title>
+</head>
+<body>
+    <h1>串接 API 網頁</h1>
+    
+    <!-- 搜尋表單 -->
+    <form id="searchForm">
+        <label for="classtype">類別：</label>
+        <select id="classtype" name="classtype">
+            <!-- 這裡可以加入選項 -->
+            <option value="option1">選項1</option>
+            <option value="option2">選項2</option>
+        </select><br>
+
+        <label for="flagno">標章編號：</label>
+        <input type="text" id="flagno" name="flagno"><br>
+
+        <label for="storename">商店名稱：</label>
+        <input type="text" id="storename" name="storename"><br>
+
+        <label for="storeaddr">聯絡地址：</label>
+        <input type="text" id="storeaddr" name="storeaddr"><br>
+
+        <label for="taxno">統一編號：</label>
+        <input type="text" id="taxno" name="taxno"><br>
+
+        <button type="submit">搜尋</button>
+    </form>
+
+    <!-- 搜尋結果顯示區域 -->
+    <div id="searchResults">
+        <!-- 搜尋結果會動態填入這裡 -->
+    </div>
+
+    <script>
+        // 當頁面載入完成後執行
+        document.addEventListener("DOMContentLoaded", function () {
+            const searchForm = document.getElementById('searchForm');
+            const searchResults = document.getElementById('searchResults');
+
+            searchForm.addEventListener('submit', function (event) {
+                event.preventDefault(); // 阻止表單提交
+
+                // 取得搜尋條件
+                const classtype = document.getElementById('classtype').value;
+                const flagno = document.getElementById('flagno').value;
+                const storename = document.getElementById('storename').value;
+                const storeaddr = document.getElementById('storeaddr').value;
+                const taxno = document.getElementById('taxno').value;
+
+                // 構建 API URL
+                const apiUrl = `https://data.moenv.gov.tw/api/v2/gp_p_01?api_key=e8dd42e6-9b8b-43f8-991e-b3dee723a52d&limit=1000&sort=ImportDate%20desc&format=JSON&classtype=${classtype}&flagno=${flagno}&storename=${storename}&storeaddr=${storeaddr}&taxno=${taxno}`;
+
+                // 使用 fetch 來取得 API 資料
+                fetch(apiUrl)
+                    .then(response => response.json())
+                    .then(data => {
+                        // 清空搜尋結果區域
+                        searchResults.innerHTML = '';
+
+                        // 遍歷資料並顯示在頁面上
+                        data.forEach(item => {
+                            const storeInfo = document.createElement('div');
+                            storeInfo.innerHTML = `
+                                <p>商店名稱: ${item.storename}</p>
+                                <p>聯絡地址: ${item.storeaddr}</p>
+                                <p>聯絡電話: ${item.contacttel}</p>
+                                <p>聯絡人: ${item.undertaker}</p>
+                                <p>統一編號: ${item.taxno}</p>
+                                <hr>
+                            `;
+                            searchResults.appendChild(storeInfo);
+                        });
+                    })
+                    .catch(error => console.error('Fetch error:', error));
+            });
+        });
+    </script>
+</body>
+</html>
